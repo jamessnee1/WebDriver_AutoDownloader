@@ -1,3 +1,4 @@
+import api.CatResponse;
 import helpers.ConfigHelper;
 import io.opentelemetry.sdk.logs.data.Body;
 import io.restassured.RestAssured;
@@ -22,8 +23,10 @@ public class InitialTest extends BaseTest {
     public void exampleAPITest() {
         Response response = RestAssured.given().when().get(baseAPIUrl);
         response.then().statusCode(200);
-        String responseBody = response.getBody().asString();
-        System.out.println("Response body:");
-        System.out.println(responseBody);
+        System.out.println("Raw response: " + response.body().asString());
+        CatResponse catResponse = response.as(CatResponse.class);
+        System.out.println("Cat Fact: " + catResponse.getFact());
+        System.out.println("Fact Length: " + catResponse.getLength());
+
     }
 }
