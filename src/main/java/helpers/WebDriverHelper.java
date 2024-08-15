@@ -205,7 +205,7 @@ public class WebDriverHelper {
         WebDriver driver = helper.getDriver();
 
         // Open a website to test
-        driver.get("https://www.google.com");
+        driver.get(ConfigHelper.getInstance().getProperty("baseUrl"));
 
         // Perform additional actions with the driver here
 
