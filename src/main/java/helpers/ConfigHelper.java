@@ -8,6 +8,7 @@ public class ConfigHelper {
     private static ConfigHelper instance;
     private Properties properties = new Properties();
 
+
     // Constructor to load properties from the config file
     public ConfigHelper() {
         System.out.println("Loading configuration file...");

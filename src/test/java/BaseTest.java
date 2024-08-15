@@ -4,7 +4,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.Test;
 
 public class BaseTest {
 
@@ -12,11 +11,20 @@ public class BaseTest {
     private WebDriverHelper webDriverHelper;
     private ConfigHelper configHelper;
 
+    protected String env;
+    protected String baseUrl;
+    protected String chromeDriverPath;
+    protected String baseAPIUrl;
+
     @BeforeClass
     public void setUpClass() {
         // This method can be used for setup that needs to be done once before all tests
         // For instance, initializing resources that are shared across tests
         configHelper = new ConfigHelper();
+        env = configHelper.getProperty("environment");
+        baseUrl = configHelper.getProperty("baseUrl");
+        chromeDriverPath = configHelper.getProperty("webdriver.chrome.driver");
+        baseAPIUrl = configHelper.getProperty("baseAPIUrl");
     }
 
     @BeforeMethod
@@ -25,7 +33,9 @@ public class BaseTest {
         System.out.println("BeforeMethod - Setting up Webdriver...");
         webDriverHelper = new WebDriverHelper();
         driver = webDriverHelper.getDriver();
-        System.out.println("Browser is " + configHelper.getProperty("browser"));
+        System.out.println("BaseUrl: " + baseUrl);
+        System.out.println("Environment: " + env);
+        System.out.println("ChromeDriver path: " + chromeDriverPath);
 
     }
 
