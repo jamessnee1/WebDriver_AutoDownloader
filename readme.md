@@ -1,5 +1,5 @@
 # WebDriver Auto Downloader
-###By James Snee
+### By James Snee
 
 ## Overview
 
