@@ -1,0 +1,110 @@
+# General IDE and editor files
+*.idea/
+*.vscode/
+*.project
+*.classpath
+*.settings/
+*.suo
+*.ntvs_analysis.dat
+*.njsproj
+*.sln
+
+# Java build output directories
+target/
+bin/
+
+# Maven-specific files
+.mvn/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+dependency-reduced-pom.xml
+
+# Gradle-specific files
+.gradle/
+build/
+
+# Log files
+*.log
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Application-specific files
+*.class
+*.jar
+*.war
+*.ear
+
+# Test data files
+testdata/
+
+# Local configuration files
+*.env
+*.properties
+*.yml
+
+# IDE-specific files
+# Eclipse
+*.launch
+*.project
+*.classpath
+.settings/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# NetBeans
+nbproject/
+
+# Gradle
+.gradle/
+build/
+
+# Maven
+target/
+
+#Executable files
+*.exe
+
+# File system metadata
+desktop.ini
+$RECYCLE.BIN/
+
+# Node.js files (if applicable)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Windows specific
+Thumbs.db
+Desktop.ini
+
+# macOS specific
+.DS_Store
+
+# JetBrains IDEs
+.idea/
+*.iml
+
+# Other build tools
+*.tmp
+*.swp
+*.swo
+*.swn
+
+# Environment files
+.env
+.env.*
+*.env.*
+
+# Docker and Kubernetes
+Dockerfile
+docker-compose.yml
+*.kube/
+*.docker/
