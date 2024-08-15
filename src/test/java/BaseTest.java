@@ -10,12 +10,13 @@ public class BaseTest {
 
     protected WebDriver driver;
     private WebDriverHelper webDriverHelper;
+    private ConfigHelper configHelper;
 
     @BeforeClass
     public void setUpClass() {
         // This method can be used for setup that needs to be done once before all tests
         // For instance, initializing resources that are shared across tests
-        System.out.println("BeforeClass");
+        configHelper = new ConfigHelper();
     }
 
     @BeforeMethod
@@ -24,6 +25,8 @@ public class BaseTest {
         System.out.println("BeforeMethod - Setting up Webdriver...");
         webDriverHelper = new WebDriverHelper();
         driver = webDriverHelper.getDriver();
+        System.out.println("Browser is " + configHelper.getProperty("browser"));
+
     }
 
     @AfterMethod

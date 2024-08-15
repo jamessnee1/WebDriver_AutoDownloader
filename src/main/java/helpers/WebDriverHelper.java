@@ -16,7 +16,7 @@ public class WebDriverHelper {
     private WebDriver driver;
     private static final String CHROME_DRIVER_URL = "https://storage.googleapis.com/chrome-for-testing-public/";
     private static String DOWNLOAD_URL_TEMPLATE = CHROME_DRIVER_URL + "%s/" + "%s/chromedriver-%s.zip";
-    private static String DOWNLOAD_PATH = System.getProperty("user.dir") + "/src/main/resources/WebDriver/";
+    private static String DOWNLOAD_PATH = System.getProperty("user.dir") + ConfigHelper.getInstance().getProperty("webdriver.chrome.driver");
 
     // Constructor to initialize the WebDriver
     public WebDriverHelper() {
