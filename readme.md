@@ -8,7 +8,8 @@
 ## Features
 
 - Automatically downloads the appropriate version of ChromeDriver based on the installed version of Google Chrome.
-- Easy-to-use test method for checking the download worked correctly.
+- Easy-to-use test method for checking the download worked correctly
+- Config properties file added for easy storage of parameters
 
 ## Installation
 
@@ -21,3 +22,4 @@ To use the WebDriver Auto Downloader, you need to have Java and Intellij install
 
 2. **Usage:**
 To test the autodownloader, run the main method inside the `WebDriverHelper` class. The chromedriver will be downloaded to the `src/main/resources/WebDriver` folder.
+Alternatively, run the `firstTest` inside the InitialTest class.
