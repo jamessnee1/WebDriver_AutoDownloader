@@ -44,11 +44,4 @@ public class BaseTest {
         // For instance, closing any resources that were initialized in setUpClass
         System.out.println("AfterClass");
     }
-
-    @Test
-    public void sampleTest() {
-        // Example test method to illustrate usage
-        driver.get("https://www.google.com");
-        // Add assertions and interactions with the page here
-    }
 }

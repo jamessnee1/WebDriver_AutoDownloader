@@ -9,6 +9,6 @@ public class InitialTest extends BaseTest {
     public void firstTest(){
         driver.get(ConfigHelper.getInstance().getProperty("baseUrl"));
         driver.findElement(By.name("q")).sendKeys("Selenium" + Keys.RETURN);
-        driver.quit();
+
     }
 }
