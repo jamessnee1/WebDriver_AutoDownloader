@@ -1,12 +1,13 @@
+package tests;
+
 import helpers.*;
 import org.openqa.selenium.WebDriver;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.AfterClass;
+import org.testng.annotations.*;
 
+@Listeners(helpers.ExtentTestListener.class)
 public class BaseTest {
 
+    //WebDriver and config
     protected WebDriver driver;
     private WebDriverHelper webDriverHelper;
     private ConfigHelper configHelper;
@@ -25,6 +26,7 @@ public class BaseTest {
         baseUrl = configHelper.getProperty("baseUrl");
         chromeDriverPath = configHelper.getProperty("webdriver.chrome.driver");
         baseAPIUrl = configHelper.getProperty("baseAPIUrl");
+
     }
 
     @BeforeMethod

@@ -1,3 +1,5 @@
+package tests;
+
 import helpers.ConfigHelper;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;

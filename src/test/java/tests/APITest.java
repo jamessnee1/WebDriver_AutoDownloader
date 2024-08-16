@@ -1,3 +1,5 @@
+package tests;
+
 import api.CatResponse;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
