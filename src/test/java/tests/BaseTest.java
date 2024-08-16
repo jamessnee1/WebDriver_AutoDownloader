@@ -16,6 +16,7 @@ public class BaseTest {
     protected String baseUrl;
     protected String chromeDriverPath;
     protected String baseAPIUrl;
+    protected String reportLocation;
 
     @BeforeClass
     public void setUpClass() {
@@ -26,6 +27,7 @@ public class BaseTest {
         baseUrl = configHelper.getProperty("baseUrl");
         chromeDriverPath = configHelper.getProperty("webdriver.chrome.driver");
         baseAPIUrl = configHelper.getProperty("baseAPIUrl");
+        reportLocation = configHelper.getProperty("reportLocation");
 
     }
 

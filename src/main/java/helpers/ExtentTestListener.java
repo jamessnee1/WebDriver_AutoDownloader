@@ -15,7 +15,8 @@ public class ExtentTestListener implements ITestListener {
     @Override
     public void onStart(ITestContext context) {
         // Initialize Extent Reports
-        ExtentSparkReporter sparkReporter = new ExtentSparkReporter(System.getProperty("user.dir") + "/src/main/resources/report/extent-report.html");
+        ExtentSparkReporter sparkReporter = new ExtentSparkReporter(System.getProperty("user.dir") +
+                ConfigHelper.getInstance().getProperty("reportLocation") + "extent-report.html");
         extent = new ExtentReports();
         extent.attachReporter(sparkReporter);
     }
