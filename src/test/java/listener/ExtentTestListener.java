@@ -15,6 +15,8 @@ import tests.BaseTest;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class ExtentTestListener implements ITestListener {
 
@@ -24,8 +26,10 @@ public class ExtentTestListener implements ITestListener {
     @Override
     public void onStart(ITestContext context) {
         // Initialize Extent Reports
+        LocalDate date = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd_MM_yyyy");
         ExtentSparkReporter sparkReporter = new ExtentSparkReporter(System.getProperty("user.dir") +
-                ConfigHelper.getInstance().getProperty("reportLocation") + "extent-report.html");
+                ConfigHelper.getInstance().getProperty("reportLocation") + "TestReport_" + date.format(formatter) + ".html");
         extent = new ExtentReports();
         extent.attachReporter(sparkReporter);
     }
