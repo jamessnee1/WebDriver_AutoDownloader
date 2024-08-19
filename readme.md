@@ -11,6 +11,7 @@
 - Easy-to-use test method for checking the download worked correctly
 - Config properties file added for easy storage of parameters
 - Extent Reports added to suite, including Test Listener
+- Screenshots on failure added
 
 ## Installation
 
