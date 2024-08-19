@@ -1,16 +1,18 @@
 package tests;
 
 import helpers.*;
+import listener.ExtentTestListener;
 import org.openqa.selenium.WebDriver;
 import org.testng.annotations.*;
 
-@Listeners(helpers.ExtentTestListener.class)
+@Listeners(ExtentTestListener.class)
 public class BaseTest {
 
     //WebDriver and config
     protected WebDriver driver;
     private WebDriverHelper webDriverHelper;
     private ConfigHelper configHelper;
+    private static ThreadLocal<WebDriver> threadDriver = new ThreadLocal<>();
 
     protected String env;
     protected String baseUrl;
@@ -28,15 +30,16 @@ public class BaseTest {
         chromeDriverPath = configHelper.getProperty("webdriver.chrome.driver");
         baseAPIUrl = configHelper.getProperty("baseAPIUrl");
         reportLocation = configHelper.getProperty("reportLocation");
+        // Initialize WebDriverHelper and WebDriver before each test method
+        System.out.println("BeforeMethod - Setting up Webdriver...");
+        webDriverHelper = new WebDriverHelper();
+        driver = webDriverHelper.getDriver();
+        threadDriver.set(driver);
 
     }
 
     @BeforeMethod
     public void setUp() {
-        // Initialize WebDriverHelper and WebDriver before each test method
-        System.out.println("BeforeMethod - Setting up Webdriver...");
-        webDriverHelper = new WebDriverHelper();
-        driver = webDriverHelper.getDriver();
         System.out.println("BaseUrl: " + baseUrl);
         System.out.println("Environment: " + env);
         System.out.println("ChromeDriver path: " + chromeDriverPath);
@@ -50,6 +53,7 @@ public class BaseTest {
         if (driver != null) {
             driver.quit();
         }
+        threadDriver.remove();
     }
 
     @AfterClass
@@ -57,5 +61,10 @@ public class BaseTest {
         // This method can be used for cleanup that needs to be done once after all tests
         // For instance, closing any resources that were initialized in setUpClass
         System.out.println("AfterClass");
+    }
+
+    // Provide static method to get the WebDriver instance
+    public static WebDriver getDriver() {
+        return threadDriver.get();
     }
 }
