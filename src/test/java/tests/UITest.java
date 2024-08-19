@@ -11,6 +11,7 @@ public class UITest extends BaseTest {
     public void exampleFirstUITest(){
         driver.get(ConfigHelper.getInstance().getProperty("baseUrl"));
         driver.findElement(By.name("q")).sendKeys("Selenium" + Keys.RETURN);
+        assert(1 == 2);
 
     }
 }

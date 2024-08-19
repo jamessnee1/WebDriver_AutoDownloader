@@ -72,6 +72,10 @@ target/
 #Executable files
 *.exe
 
+#Reporting and screenshot files
+*.html
+*.png
+
 # File system metadata
 desktop.ini
 $RECYCLE.BIN/
