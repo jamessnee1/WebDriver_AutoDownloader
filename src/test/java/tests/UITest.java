@@ -14,11 +14,12 @@ public class UITest extends BaseTest {
 
     @Test
     public void exampleFirstUITest(){
-        driver.get(ConfigHelper.getInstance().getProperty("baseUrl"));
+        driver.get(baseUrl);
 
         //Homepage
         googleHomePage = new GoogleHomePage(driver);
         googleHomePage.enterSearchText("Selenium" + Keys.RETURN);
+
 
     }
 }

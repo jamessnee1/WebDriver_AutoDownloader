@@ -14,25 +14,25 @@ public class BaseTest {
     private ConfigHelper configHelper;
     private static ThreadLocal<WebDriver> threadDriver = new ThreadLocal<>();
 
-    protected String env;
-    protected String baseUrl;
-    protected String chromeDriverPath;
     protected String baseAPIUrl;
-    protected String reportLocation;
+    protected String baseUrl;
 
     @BeforeClass
     public void setUpClass() {
         // This method can be used for setup that needs to be done once before all tests
         // For instance, initializing resources that are shared across tests
         configHelper = new ConfigHelper();
-        env = configHelper.getProperty("environment");
-        baseUrl = configHelper.getProperty("baseUrl");
-        chromeDriverPath = configHelper.getProperty("webdriver.chrome.driver");
         baseAPIUrl = configHelper.getProperty("baseAPIUrl");
-        reportLocation = configHelper.getProperty("reportLocation");
+        baseUrl = configHelper.getProperty("baseUrl");
+        System.out.println("BaseUrl: " + configHelper.getProperty("baseUrl"));
+        System.out.println("BaseAPIUrl: " + configHelper.getProperty("baseAPIUrl"));
+        System.out.println("Environment: " + configHelper.getProperty("environment"));
+        System.out.println("Browser: " + configHelper.getProperty("browser"));
+        System.out.println("Report Location: " + configHelper.getProperty("reportLocation"));
+
         // Initialize WebDriverHelper and WebDriver before each test run
         System.out.println("BeforeMethod - Setting up Webdriver...");
-        webDriverHelper = new WebDriverHelper(ConfigHelper.getInstance().getProperty("browser"));
+        webDriverHelper = new WebDriverHelper(configHelper.getProperty("browser"));
         driver = webDriverHelper.getDriver();
         threadDriver.set(driver);
 
@@ -40,9 +40,6 @@ public class BaseTest {
 
     @BeforeMethod
     public void setUp() {
-        System.out.println("BaseUrl: " + baseUrl);
-        System.out.println("Environment: " + env);
-        System.out.println("ChromeDriver path: " + chromeDriverPath);
 
     }
 
