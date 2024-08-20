@@ -30,7 +30,7 @@ public class BaseTest {
         chromeDriverPath = configHelper.getProperty("webdriver.chrome.driver");
         baseAPIUrl = configHelper.getProperty("baseAPIUrl");
         reportLocation = configHelper.getProperty("reportLocation");
-        // Initialize WebDriverHelper and WebDriver before each test method
+        // Initialize WebDriverHelper and WebDriver before each test run
         System.out.println("BeforeMethod - Setting up Webdriver...");
         webDriverHelper = new WebDriverHelper();
         driver = webDriverHelper.getDriver();
