@@ -1,9 +1,7 @@
 package tests;
 
-import helpers.ConfigHelper;
 import model.GoogleHomePage;
 import model.GoogleResultsPage;
-import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.testng.annotations.Test;
 
