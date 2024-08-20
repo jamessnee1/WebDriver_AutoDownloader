@@ -7,7 +7,6 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.regex.Matcher;
@@ -64,7 +63,7 @@ public class WebDriverHelper {
         String chromeVersion = getChromeVersion();
         //If chromedriver exists, do not download
         Path filePath = Paths.get(WEBDRIVER_DOWNLOAD_PATH + "chromedriver.exe");
-        if(Files.exists(filePath)){
+        if(FileHelper.fileExists(filePath)){
             System.out.println("Chromedriver exists, no download required.");
         }
         else {
@@ -90,7 +89,7 @@ public class WebDriverHelper {
         System.out.println("Firefox version: " + getFirefoxVersion());
         String firefoxVersion = getFirefoxVersion();
         Path filePath = Paths.get(WEBDRIVER_DOWNLOAD_PATH + "geckodriver.exe");
-        if (Files.exists(filePath)) {
+        if (FileHelper.fileExists(filePath)) {
             System.out.println("Geckodriver exists, no download required.");
         } else {
             // Download the latest GeckoDriver

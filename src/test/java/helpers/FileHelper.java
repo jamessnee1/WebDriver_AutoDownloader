@@ -19,6 +19,16 @@ public class FileHelper {
     private static final int MAX_WAIT_TIME_MS = 10000; // Maximum wait time in milliseconds
 
     /**
+     * Checks if a file exists at the specified path.
+     *
+     * @param filePath the path of the file to check
+     * @return true if the file exists, false otherwise
+     */
+    public static boolean fileExists(Path filePath) {
+        return Files.exists(filePath);
+    }
+
+    /**
      * Deletes a folder and all of its contents recursively.
      *
      * @param folder The folder to delete.
