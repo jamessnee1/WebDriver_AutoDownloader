@@ -72,6 +72,9 @@ target/
 #Executable files
 *.exe
 
+#Zip files
+*.zip
+
 #Reporting and screenshot files
 *.html
 *.png
