@@ -23,5 +23,5 @@ To use the WebDriver Auto Downloader, you need to have Java and Intellij install
    git clone https://github.com/jamessnee1/WebDriver_AutoDownloader.git
 
 2. **Usage:**
-To test the autodownloader, run the main method inside the `WebDriverHelper` class. The chromedriver will be downloaded to the `src/main/resources/WebDriver` folder.
+To test the autodownloader, run the main method inside the `WebDriverHelper` class. The webdriver will be downloaded to the `src/main/resources/WebDriver` folder.
 Alternatively, run the `exampleFirstUITest` inside the tests.UITest class.
