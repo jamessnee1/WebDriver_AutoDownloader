@@ -4,14 +4,19 @@ import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class FileHelper {
+
+    private static final int WAIT_INTERVAL_MS = 1000; // Time in milliseconds between size checks
+    private static final int MAX_WAIT_TIME_MS = 10000; // Maximum wait time in milliseconds
 
     /**
      * Deletes a folder and all of its contents recursively.
@@ -66,8 +71,9 @@ public class FileHelper {
 
     // Method to unzip a file
     public static void unzipFile(String zipFilePath, String destDirectory) throws IOException {
-        try (java.util.zip.ZipInputStream zipIn = new java.util.zip.ZipInputStream(Files.newInputStream(Paths.get(zipFilePath)))) {
-            java.util.zip.ZipEntry entry;
+        System.out.println("Extracting archive...");
+        try (ZipInputStream zipIn = new ZipInputStream(Files.newInputStream(Paths.get(zipFilePath)))) {
+            ZipEntry entry;
             while ((entry = zipIn.getNextEntry()) != null) {
                 File file = new File(destDirectory, entry.getName());
                 if (entry.isDirectory()) {
@@ -90,6 +96,7 @@ public class FileHelper {
                 zipIn.closeEntry();
             }
         }
+        System.out.println("File extracted succesfully!");
     }
 
     // Method to untar a file
@@ -114,6 +121,57 @@ public class FileHelper {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    // Method to download a file from a URL
+    public static void downloadFile(String fileURL, String saveAs) throws IOException {
+        URL url = new URL(fileURL);
+        HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
+        int responseCode = httpConn.getResponseCode();
+
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            try (BufferedInputStream in = new BufferedInputStream(httpConn.getInputStream());
+                 FileOutputStream fileOutputStream = new FileOutputStream(saveAs)) {
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = in.read(buffer)) != -1) {
+                    fileOutputStream.write(buffer, 0, bytesRead);
+                }
+            }
+
+            // Wait for the file to finish downloading
+            waitForFileToBeFullyDownloaded(saveAs);
+
+        } else {
+            throw new IOException("No file to download. Server replied HTTP code: " + responseCode);
+        }
+    }
+
+    private static void waitForFileToBeFullyDownloaded(String filePath) throws IOException {
+        Path path = Path.of(filePath);
+        long previousSize = 0;
+        long currentSize;
+        long startTime = System.currentTimeMillis();
+
+        while (true) {
+            currentSize = Files.size(path);
+            if (currentSize == previousSize) {
+                System.out.println("File download complete.");
+                break;
+            }
+            previousSize = currentSize;
+
+            if (System.currentTimeMillis() - startTime > MAX_WAIT_TIME_MS) {
+                throw new IOException("Timeout waiting for file to complete download.");
+            }
+
+            try {
+                Thread.sleep(WAIT_INTERVAL_MS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new IOException("Interrupted while waiting for file to complete download.", e);
             }
         }
     }

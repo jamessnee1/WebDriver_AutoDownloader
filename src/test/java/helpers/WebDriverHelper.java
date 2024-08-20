@@ -1,8 +1,5 @@
 package helpers;
 
-import org.apache.commons.compress.archivers.ArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -15,16 +12,20 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class WebDriverHelper {
 
     protected WebDriver driver;
     private static final String CHROME_DRIVER_URL = "https://storage.googleapis.com/chrome-for-testing-public/";
-    private static final String GECKO_DRIVER_URL = "https://github.com/mozilla/geckodriver/releases/download/";
-    private static String GECKO_DOWNLOAD_URL_TEMPLATE = GECKO_DRIVER_URL + "%s/%s/geckodriver-%s.tar.gz";
+    //https://github.com/mozilla/geckodriver/releases/download/v0.35.0/geckodriver-v0.35.0-win32.zip
+    private static final String GECKO_DRIVER_URL = "https://github.com/mozilla/geckodriver/releases/tag/";
+    private static String GECKO_DOWNLOAD_URL_TEMPLATE = GECKO_DRIVER_URL + "%s/geckodriver-%s-%s.zip";
     private static String CHROMEDRIVER_DOWNLOAD_URL_TEMPLATE = CHROME_DRIVER_URL + "%s/" + "%s/chromedriver-%s.zip";
-    private static String DOWNLOAD_PATH = System.getProperty("user.dir") + ConfigHelper.getInstance().getProperty("webdriver.chrome.driver");
+    private static String WEBDRIVER_DOWNLOAD_PATH = System.getProperty("user.dir") + ConfigHelper.getInstance().getProperty("webdriver.download.path");
+
 
     // Constructor to initialize the WebDriver
     public WebDriverHelper(String browserType) {
@@ -65,7 +66,7 @@ public class WebDriverHelper {
         System.out.println("Chrome version: " + getChromeVersion());
         String chromeVersion = getChromeVersion();
         //If chromedriver exists, do not download
-        Path filePath = Paths.get(DOWNLOAD_PATH + "chromedriver.exe");
+        Path filePath = Paths.get(WEBDRIVER_DOWNLOAD_PATH + "chromedriver.exe");
         if(Files.exists(filePath)){
             System.out.println("Chromedriver exists, no download required.");
         }
@@ -75,7 +76,7 @@ public class WebDriverHelper {
         }
 
         // Set the path to the ChromeDriver executable
-        System.setProperty("webdriver.chrome.driver", DOWNLOAD_PATH + "chromedriver.exe");
+        System.setProperty("webdriver.chrome.driver", WEBDRIVER_DOWNLOAD_PATH + "chromedriver.exe");
 
         // Create ChromeOptions for additional settings
         ChromeOptions options = new ChromeOptions();
@@ -91,7 +92,7 @@ public class WebDriverHelper {
         // Check Firefox Version
         System.out.println("Firefox version: " + getFirefoxVersion());
         String firefoxVersion = getFirefoxVersion();
-        Path filePath = Paths.get(DOWNLOAD_PATH + "geckodriver.exe");
+        Path filePath = Paths.get(WEBDRIVER_DOWNLOAD_PATH + "geckodriver.exe");
         if (Files.exists(filePath)) {
             System.out.println("Geckodriver exists, no download required.");
         } else {
@@ -100,7 +101,7 @@ public class WebDriverHelper {
         }
 
         // Set the path to the GeckoDriver executable
-        System.setProperty("webdriver.gecko.driver", DOWNLOAD_PATH + "geckodriver.exe");
+        System.setProperty("webdriver.gecko.driver", WEBDRIVER_DOWNLOAD_PATH + "geckodriver.exe");
 
         // Create FirefoxOptions for additional settings
         FirefoxOptions options = new FirefoxOptions();
@@ -115,24 +116,23 @@ public class WebDriverHelper {
     private void downloadLatestChromeDriver() throws Exception {
         String os = getOS();
         CHROMEDRIVER_DOWNLOAD_URL_TEMPLATE = String.format(CHROMEDRIVER_DOWNLOAD_URL_TEMPLATE, getChromeVersion(), os, os);
-        DOWNLOAD_PATH = String.format(DOWNLOAD_PATH, os);
+        WEBDRIVER_DOWNLOAD_PATH = String.format(WEBDRIVER_DOWNLOAD_PATH, os);
         System.out.println("Chromedriver does not exist in path");
         System.out.println("Downloading latest ChromeDriver version from " + CHROMEDRIVER_DOWNLOAD_URL_TEMPLATE + "...");
-        String zipFilePath = DOWNLOAD_PATH + "chromedriver_" + os + ".zip";
-        String extractedFilePath = DOWNLOAD_PATH + "chromedriver-" + os + "/chromedriver.exe";
+        String zipFilePath = WEBDRIVER_DOWNLOAD_PATH + "chromedriver_" + os + ".zip";
+        String extractedFilePath = WEBDRIVER_DOWNLOAD_PATH + "chromedriver-" + os + "/chromedriver.exe";
 
         // Download the latest ChromeDriver zip file
-        downloadFile(CHROMEDRIVER_DOWNLOAD_URL_TEMPLATE, zipFilePath);
+        FileHelper.downloadFile(CHROMEDRIVER_DOWNLOAD_URL_TEMPLATE, zipFilePath);
         // Extract the downloaded zip file
-        DOWNLOAD_PATH = String.format(DOWNLOAD_PATH, os);
-        FileHelper.unzipFile(zipFilePath, DOWNLOAD_PATH);
-        System.out.println("Extracting archive...");
+        WEBDRIVER_DOWNLOAD_PATH = String.format(WEBDRIVER_DOWNLOAD_PATH, os);
+        FileHelper.unzipFile(zipFilePath, WEBDRIVER_DOWNLOAD_PATH);
         // Cleanup the zip file
         FileHelper.deleteFile(Paths.get(zipFilePath));
         //Copy webdriver
-        FileHelper.copyFile(Paths.get(extractedFilePath), Paths.get(DOWNLOAD_PATH + "/chromedriver.exe"));
+        FileHelper.copyFile(Paths.get(extractedFilePath), Paths.get(WEBDRIVER_DOWNLOAD_PATH + "/chromedriver.exe"));
         //Delete folder
-        FileHelper.deleteFolderRecursively(Paths.get(DOWNLOAD_PATH + "chromedriver-" + os + "/"));
+        FileHelper.deleteFolderRecursively(Paths.get(WEBDRIVER_DOWNLOAD_PATH + "chromedriver-" + os + "/"));
         System.out.println("ChromeDriver updated successfully!");
 
     }
@@ -140,45 +140,18 @@ public class WebDriverHelper {
     // Method to download the latest GeckoDriver
     private void downloadLatestGeckoDriver() throws Exception {
         String os = getOS();
-        GECKO_DOWNLOAD_URL_TEMPLATE = String.format(GECKO_DOWNLOAD_URL_TEMPLATE, getFirefoxVersion(), os, os);
-        DOWNLOAD_PATH = String.format(DOWNLOAD_PATH, os);
+        GECKO_DOWNLOAD_URL_TEMPLATE = String.format(GECKO_DOWNLOAD_URL_TEMPLATE, getFirefoxVersion(), getFirefoxVersion(), os);
         System.out.println("Geckodriver does not exist in path");
         System.out.println("Downloading latest GeckoDriver version from " + GECKO_DOWNLOAD_URL_TEMPLATE + "...");
-        String tarFilePath = DOWNLOAD_PATH + "geckodriver_" + os + ".tar.gz";
-        String extractedFilePath = DOWNLOAD_PATH + "geckodriver-" + os + "/geckodriver.exe";
-
-        // Download the latest GeckoDriver tar.gz file
-        downloadFile(GECKO_DOWNLOAD_URL_TEMPLATE, tarFilePath);
-        // Extract the downloaded tar.gz file
-        FileHelper.untarFile(tarFilePath, DOWNLOAD_PATH);
-        System.out.println("Extracting archive...");
-        // Cleanup the tar.gz file
-        FileHelper.deleteFile(Paths.get(tarFilePath));
-        // Copy webdriver
-        FileHelper.copyFile(Paths.get(extractedFilePath), Paths.get(DOWNLOAD_PATH + "/geckodriver.exe"));
-        // Delete folder
-        FileHelper.deleteFolderRecursively(Paths.get(DOWNLOAD_PATH + "geckodriver-" + os + "/"));
+        String zipFilePath = WEBDRIVER_DOWNLOAD_PATH + "geckodriver-" + getFirefoxVersion() + "-" + os + ".zip";
+        String extractedFilePath = WEBDRIVER_DOWNLOAD_PATH + "geckodriver-" + os + "/geckodriver.exe";
+        // Download the latest GeckoDriver zip file
+        FileHelper.downloadFile(GECKO_DOWNLOAD_URL_TEMPLATE, zipFilePath);
+        // Extract the downloaded zip file
+        FileHelper.unzipFile(zipFilePath, WEBDRIVER_DOWNLOAD_PATH);
+        // Cleanup the zip file
+        //FileHelper.deleteFile(Paths.get(zipFilePath));
         System.out.println("GeckoDriver updated successfully!");
-    }
-
-    // Method to download a file from a URL
-    private void downloadFile(String fileURL, String saveAs) throws IOException {
-        URL url = new URL(fileURL);
-        HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
-        int responseCode = httpConn.getResponseCode();
-
-        if (responseCode == HttpURLConnection.HTTP_OK) {
-            try (BufferedInputStream in = new BufferedInputStream(httpConn.getInputStream());
-                 FileOutputStream fileOutputStream = new FileOutputStream(saveAs)) {
-                byte[] buffer = new byte[1024];
-                int bytesRead;
-                while ((bytesRead = in.read(buffer)) != -1) {
-                    fileOutputStream.write(buffer, 0, bytesRead);
-                }
-            }
-        } else {
-            throw new IOException("No file to download. Server replied HTTP code: " + responseCode);
-        }
     }
 
     // Method to determine the OS for the driver binary name
@@ -261,11 +234,35 @@ public class WebDriverHelper {
         String line;
         while ((line = reader.readLine()) != null) {
             if (line.contains("CurrentVersion")) {
-                return line.split("\\s+")[line.split("\\s+").length - 1];
+                // Extract version number from the line - 3rd substring
+                String[] parts = line.split("\\s+");
+                String version = parts[3].trim();
+
+                // Define the regex pattern for the version number
+                String regex = "^([0-9]+)\\.([0-9]+)\\.([0-9]+)$";
+
+                // Compile the pattern
+                Pattern pattern = Pattern.compile(regex);
+
+                // Create a matcher for the version string
+                Matcher matcher = pattern.matcher(version);
+
+                String majorVersion = "";
+                String subVersion = "";
+
+                if(matcher.matches()){
+                    //Extract version components
+                    majorVersion = matcher.group(1);
+                    subVersion = matcher.group(3);
+                }
+
+                //Remove the first character and the last character
+                return "v0." + majorVersion.substring(1) + "." + subVersion;
             }
         }
         throw new RuntimeException("Failed to find Firefox version in registry.");
     }
+
 
     private static String getFirefoxVersionMac() throws Exception {
         String command = "/Applications/Firefox.app/Contents/MacOS/firefox --version";
