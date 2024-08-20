@@ -1,8 +1,14 @@
 package helpers;
 
+import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
+
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -15,35 +21,24 @@ public class WebDriverHelper {
 
     protected WebDriver driver;
     private static final String CHROME_DRIVER_URL = "https://storage.googleapis.com/chrome-for-testing-public/";
-    private static String DOWNLOAD_URL_TEMPLATE = CHROME_DRIVER_URL + "%s/" + "%s/chromedriver-%s.zip";
+    private static final String GECKO_DRIVER_URL = "https://github.com/mozilla/geckodriver/releases/download/";
+    private static String GECKO_DOWNLOAD_URL_TEMPLATE = GECKO_DRIVER_URL + "%s/%s/geckodriver-%s.tar.gz";
+    private static String CHROMEDRIVER_DOWNLOAD_URL_TEMPLATE = CHROME_DRIVER_URL + "%s/" + "%s/chromedriver-%s.zip";
     private static String DOWNLOAD_PATH = System.getProperty("user.dir") + ConfigHelper.getInstance().getProperty("webdriver.chrome.driver");
 
     // Constructor to initialize the WebDriver
-    public WebDriverHelper() {
+    public WebDriverHelper(String browserType) {
         try {
-            //Check Chrome Version
-            System.out.println("Chrome version: " + getChromeVersion());
-            String chromeVersion = getChromeVersion();
-            //If chromedriver exists, do not download
-            Path filePath = Paths.get(DOWNLOAD_PATH + "chromedriver.exe");
-            if(Files.exists(filePath)){
-                System.out.println("Chromedriver exists, no download required.");
+            if(browserType.equalsIgnoreCase("chrome")) {
+                initializeChromeDriver();
+            }
+            else if(browserType.equalsIgnoreCase("firefox")){
+
             }
             else {
-                // Download the latest ChromeDriver
-                downloadLatestChromeDriver();
+                //Any other browser here
             }
 
-            // Set the path to the ChromeDriver executable
-            System.setProperty("webdriver.chrome.driver", DOWNLOAD_PATH + "chromedriver.exe");
-
-            // Create ChromeOptions for additional settings
-            ChromeOptions options = new ChromeOptions();
-            options.addArguments("--start-maximized"); // Start the browser maximized
-            options.addArguments("--disable-popup-blocking"); // Disable popup blocking
-
-            // Initialize the WebDriver
-            driver = new ChromeDriver(options);
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException("Failed to initialize WebDriver.", e);
@@ -64,21 +59,73 @@ public class WebDriverHelper {
         }
     }
 
+    //Initialize Chrome Driver
+    private void initializeChromeDriver() throws Exception {
+        //Check Chrome Version
+        System.out.println("Chrome version: " + getChromeVersion());
+        String chromeVersion = getChromeVersion();
+        //If chromedriver exists, do not download
+        Path filePath = Paths.get(DOWNLOAD_PATH + "chromedriver.exe");
+        if(Files.exists(filePath)){
+            System.out.println("Chromedriver exists, no download required.");
+        }
+        else {
+            // Download the latest ChromeDriver
+            downloadLatestChromeDriver();
+        }
+
+        // Set the path to the ChromeDriver executable
+        System.setProperty("webdriver.chrome.driver", DOWNLOAD_PATH + "chromedriver.exe");
+
+        // Create ChromeOptions for additional settings
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--start-maximized"); // Start the browser maximized
+        options.addArguments("--disable-popup-blocking"); // Disable popup blocking
+
+        // Initialize the WebDriver
+        driver = new ChromeDriver(options);
+    }
+
+    //Initialize Firefox Driver
+    private void initializeFirefoxDriver() throws Exception {
+        // Check Firefox Version
+        System.out.println("Firefox version: " + getFirefoxVersion());
+        String firefoxVersion = getFirefoxVersion();
+        Path filePath = Paths.get(DOWNLOAD_PATH + "geckodriver.exe");
+        if (Files.exists(filePath)) {
+            System.out.println("Geckodriver exists, no download required.");
+        } else {
+            // Download the latest GeckoDriver
+            downloadLatestGeckoDriver();
+        }
+
+        // Set the path to the GeckoDriver executable
+        System.setProperty("webdriver.gecko.driver", DOWNLOAD_PATH + "geckodriver.exe");
+
+        // Create FirefoxOptions for additional settings
+        FirefoxOptions options = new FirefoxOptions();
+        options.addArguments("--start-maximized"); // Start the browser maximized
+        options.addArguments("--disable-popup-blocking"); // Disable popup blocking
+
+        // Initialize the WebDriver
+        driver = new FirefoxDriver(options);
+    }
+
     // Method to download the latest ChromeDriver
     private void downloadLatestChromeDriver() throws Exception {
         String os = getOS();
-        DOWNLOAD_URL_TEMPLATE = String.format(DOWNLOAD_URL_TEMPLATE, getChromeVersion(), os, os);
+        CHROMEDRIVER_DOWNLOAD_URL_TEMPLATE = String.format(CHROMEDRIVER_DOWNLOAD_URL_TEMPLATE, getChromeVersion(), os, os);
         DOWNLOAD_PATH = String.format(DOWNLOAD_PATH, os);
         System.out.println("Chromedriver does not exist in path");
-        System.out.println("Downloading latest ChromeDriver version from " + DOWNLOAD_URL_TEMPLATE + "...");
+        System.out.println("Downloading latest ChromeDriver version from " + CHROMEDRIVER_DOWNLOAD_URL_TEMPLATE + "...");
         String zipFilePath = DOWNLOAD_PATH + "chromedriver_" + os + ".zip";
         String extractedFilePath = DOWNLOAD_PATH + "chromedriver-" + os + "/chromedriver.exe";
 
         // Download the latest ChromeDriver zip file
-        downloadFile(DOWNLOAD_URL_TEMPLATE, zipFilePath);
+        downloadFile(CHROMEDRIVER_DOWNLOAD_URL_TEMPLATE, zipFilePath);
         // Extract the downloaded zip file
         DOWNLOAD_PATH = String.format(DOWNLOAD_PATH, os);
-        unzipFile(zipFilePath, DOWNLOAD_PATH);
+        FileHelper.unzipFile(zipFilePath, DOWNLOAD_PATH);
         System.out.println("Extracting archive...");
         // Cleanup the zip file
         FileHelper.deleteFile(Paths.get(zipFilePath));
@@ -88,6 +135,30 @@ public class WebDriverHelper {
         FileHelper.deleteFolderRecursively(Paths.get(DOWNLOAD_PATH + "chromedriver-" + os + "/"));
         System.out.println("ChromeDriver updated successfully!");
 
+    }
+
+    // Method to download the latest GeckoDriver
+    private void downloadLatestGeckoDriver() throws Exception {
+        String os = getOS();
+        GECKO_DOWNLOAD_URL_TEMPLATE = String.format(GECKO_DOWNLOAD_URL_TEMPLATE, getFirefoxVersion(), os, os);
+        DOWNLOAD_PATH = String.format(DOWNLOAD_PATH, os);
+        System.out.println("Geckodriver does not exist in path");
+        System.out.println("Downloading latest GeckoDriver version from " + GECKO_DOWNLOAD_URL_TEMPLATE + "...");
+        String tarFilePath = DOWNLOAD_PATH + "geckodriver_" + os + ".tar.gz";
+        String extractedFilePath = DOWNLOAD_PATH + "geckodriver-" + os + "/geckodriver.exe";
+
+        // Download the latest GeckoDriver tar.gz file
+        downloadFile(GECKO_DOWNLOAD_URL_TEMPLATE, tarFilePath);
+        // Extract the downloaded tar.gz file
+        FileHelper.untarFile(tarFilePath, DOWNLOAD_PATH);
+        System.out.println("Extracting archive...");
+        // Cleanup the tar.gz file
+        FileHelper.deleteFile(Paths.get(tarFilePath));
+        // Copy webdriver
+        FileHelper.copyFile(Paths.get(extractedFilePath), Paths.get(DOWNLOAD_PATH + "/geckodriver.exe"));
+        // Delete folder
+        FileHelper.deleteFolderRecursively(Paths.get(DOWNLOAD_PATH + "geckodriver-" + os + "/"));
+        System.out.println("GeckoDriver updated successfully!");
     }
 
     // Method to download a file from a URL
@@ -107,34 +178,6 @@ public class WebDriverHelper {
             }
         } else {
             throw new IOException("No file to download. Server replied HTTP code: " + responseCode);
-        }
-    }
-
-    // Method to unzip a file
-    private void unzipFile(String zipFilePath, String destDirectory) throws IOException {
-        try (java.util.zip.ZipInputStream zipIn = new java.util.zip.ZipInputStream(Files.newInputStream(Paths.get(zipFilePath)))) {
-            java.util.zip.ZipEntry entry;
-            while ((entry = zipIn.getNextEntry()) != null) {
-                File file = new File(destDirectory, entry.getName());
-                if (entry.isDirectory()) {
-                    if (!file.exists()) {
-                        file.mkdir();
-                    }
-                } else {
-                    File parent = file.getParentFile();
-                    if (!parent.exists()) {
-                        parent.mkdirs();
-                    }
-                    try (FileOutputStream fos = new FileOutputStream(file)) {
-                        byte[] bytesIn = new byte[4096];
-                        int read;
-                        while ((read = zipIn.read(bytesIn)) != -1) {
-                            fos.write(bytesIn, 0, read);
-                        }
-                    }
-                }
-                zipIn.closeEntry();
-            }
         }
     }
 
@@ -198,10 +241,58 @@ public class WebDriverHelper {
         throw new RuntimeException("Failed to find Chrome version on Linux.");
     }
 
+    public static String getFirefoxVersion() throws Exception {
+        String os = System.getProperty("os.name").toLowerCase();
+        if (os.contains("win")) {
+            return getFirefoxVersionWindows();
+        } else if (os.contains("mac")) {
+            return getFirefoxVersionMac();
+        } else if (os.contains("nix") || os.contains("nux")) {
+            return getFirefoxVersionLinux();
+        } else {
+            throw new UnsupportedOperationException("Unsupported OS: " + os);
+        }
+    }
+
+    private static String getFirefoxVersionWindows() throws Exception {
+        String command = "reg query \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Mozilla\\Mozilla Firefox\" /v CurrentVersion";
+        Process process = Runtime.getRuntime().exec(command);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        String line;
+        while ((line = reader.readLine()) != null) {
+            if (line.contains("CurrentVersion")) {
+                return line.split("\\s+")[line.split("\\s+").length - 1];
+            }
+        }
+        throw new RuntimeException("Failed to find Firefox version in registry.");
+    }
+
+    private static String getFirefoxVersionMac() throws Exception {
+        String command = "/Applications/Firefox.app/Contents/MacOS/firefox --version";
+        Process process = Runtime.getRuntime().exec(new String[]{"/bin/sh", "-c", command});
+        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        String line = reader.readLine();
+        if (line != null) {
+            return line.split("\\s+")[line.split("\\s+").length - 1];
+        }
+        throw new RuntimeException("Failed to find Firefox version on Mac.");
+    }
+
+    private static String getFirefoxVersionLinux() throws Exception {
+        String command = "firefox --version";
+        Process process = Runtime.getRuntime().exec(command);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        String line = reader.readLine();
+        if (line != null) {
+            return line.split("\\s+")[line.split("\\s+").length - 1];
+        }
+        throw new RuntimeException("Failed to find Firefox version on Linux.");
+    }
+
 
     // Main method for testing the WebDriverHelper class
     public static void main(String[] args) {
-        WebDriverHelper helper = new WebDriverHelper();
+        WebDriverHelper helper = new WebDriverHelper(ConfigHelper.getInstance().getProperty("browser"));
         WebDriver driver = helper.getDriver();
 
         // Open a website to test

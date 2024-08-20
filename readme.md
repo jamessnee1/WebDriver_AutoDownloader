@@ -3,11 +3,11 @@
 
 ## Overview
 
-**WebDriver Auto Downloader** is a utility designed to simplify the process of downloading WebDriver binaries for your automated testing needs. Currently, this tool supports downloading **ChromeDriver** for Google Chrome.
+**WebDriver Auto Downloader** is a utility designed to simplify the process of downloading WebDriver binaries for your automated testing needs. Currently, this tool supports downloading **ChromeDriver** for Google Chrome and **GeckoDriver** for Mozilla Firefox.
 
 ## Features
 
-- Automatically downloads the appropriate version of ChromeDriver based on the installed version of Google Chrome.
+- Automatically downloads the appropriate version of ChromeDriver or GeckoDriver based on the installed version of Google Chrome or Mozilla Firefox.
 - Easy-to-use test method for checking the download worked correctly
 - Config properties file added for easy storage of parameters
 - Extent Reports added to suite, including Test Listener

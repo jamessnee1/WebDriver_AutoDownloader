@@ -32,7 +32,7 @@ public class BaseTest {
         reportLocation = configHelper.getProperty("reportLocation");
         // Initialize WebDriverHelper and WebDriver before each test run
         System.out.println("BeforeMethod - Setting up Webdriver...");
-        webDriverHelper = new WebDriverHelper();
+        webDriverHelper = new WebDriverHelper(ConfigHelper.getInstance().getProperty("browser"));
         driver = webDriverHelper.getDriver();
         threadDriver.set(driver);
 
