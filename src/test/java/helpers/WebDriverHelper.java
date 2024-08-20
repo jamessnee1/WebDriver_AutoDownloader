@@ -33,7 +33,7 @@ public class WebDriverHelper {
                 initializeChromeDriver();
             }
             else if(browserType.equalsIgnoreCase("firefox")){
-
+                initializeFirefoxDriver();
             }
             else {
                 //Any other browser here
