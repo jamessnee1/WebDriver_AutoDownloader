@@ -140,7 +140,8 @@ public class WebDriverHelper {
     private void downloadLatestGeckoDriver() throws Exception {
         String os = getOS();
         //Use v0.35.0 for latest Firefox
-        GECKO_DOWNLOAD_URL_TEMPLATE = String.format(GECKO_DOWNLOAD_URL_TEMPLATE, "v0.35.0", "v0.35.0", os);
+        GECKO_DOWNLOAD_URL_TEMPLATE = String.format(GECKO_DOWNLOAD_URL_TEMPLATE, ConfigHelper.getInstance().getProperty("firefoxVersion"),
+                ConfigHelper.getInstance().getProperty("firefoxVersion"), os);
         System.out.println("Geckodriver does not exist in path");
         System.out.println("Downloading latest GeckoDriver version from " + GECKO_DOWNLOAD_URL_TEMPLATE + "...");
         String zipFilePath = WEBDRIVER_DOWNLOAD_PATH + "geckodriver-" + getFirefoxVersion() + "-" + os + ".zip";
