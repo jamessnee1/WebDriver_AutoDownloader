@@ -71,32 +71,55 @@ public class FileHelper {
 
     // Method to unzip a file
     public static void unzipFile(String zipFilePath, String destDirectory) throws IOException {
+        File zipFile = new File(zipFilePath);
+        if (!zipFile.exists() || !zipFile.isFile()) {
+            throw new IOException("The ZIP file does not exist or is not a file: " + zipFilePath);
+        }
+
+        File destDir = new File(destDirectory);
+        if (!destDir.exists()) {
+            if (!destDir.mkdirs()) {
+                throw new IOException("Failed to create destination directory: " + destDirectory);
+            }
+        }
+
         System.out.println("Extracting archive...");
-        try (ZipInputStream zipIn = new ZipInputStream(Files.newInputStream(Paths.get(zipFilePath)))) {
+
+        try (ZipInputStream zipIn = new ZipInputStream(Files.newInputStream(zipFile.toPath()))) {
             ZipEntry entry;
+            boolean entriesFound = false;
             while ((entry = zipIn.getNextEntry()) != null) {
+                entriesFound = true;
                 File file = new File(destDirectory, entry.getName());
                 if (entry.isDirectory()) {
                     if (!file.exists()) {
-                        file.mkdir();
+                        if (!file.mkdirs()) {
+                            throw new IOException("Failed to create directory: " + file.getAbsolutePath());
+                        }
                     }
                 } else {
                     File parent = file.getParentFile();
                     if (!parent.exists()) {
-                        parent.mkdirs();
+                        if (!parent.mkdirs()) {
+                            throw new IOException("Failed to create directory: " + parent.getAbsolutePath());
+                        }
                     }
                     try (FileOutputStream fos = new FileOutputStream(file)) {
-                        byte[] bytesIn = new byte[4096];
-                        int read;
-                        while ((read = zipIn.read(bytesIn)) != -1) {
-                            fos.write(bytesIn, 0, read);
+                        byte[] buffer = new byte[4096];
+                        int bytesRead;
+                        while ((bytesRead = zipIn.read(buffer)) != -1) {
+                            fos.write(buffer, 0, bytesRead);
                         }
                     }
                 }
                 zipIn.closeEntry();
             }
+            if (!entriesFound) {
+                throw new IOException("No entries found in the ZIP file.");
+            }
         }
-        System.out.println("File extracted succesfully!");
+
+        System.out.println("File extracted successfully!");
     }
 
     // Method to untar a file

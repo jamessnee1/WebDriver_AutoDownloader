@@ -19,9 +19,8 @@ import java.util.regex.Pattern;
 public class WebDriverHelper {
 
     protected WebDriver driver;
-    private static final String CHROME_DRIVER_URL = "https://storage.googleapis.com/chrome-for-testing-public/";
-    //https://github.com/mozilla/geckodriver/releases/download/v0.35.0/geckodriver-v0.35.0-win32.zip
-    private static final String GECKO_DRIVER_URL = "https://github.com/mozilla/geckodriver/releases/tag/";
+    private static final String CHROME_DRIVER_URL = ConfigHelper.getInstance().getProperty("chromeDriverDownloadURL");
+    private static final String GECKO_DRIVER_URL = ConfigHelper.getInstance().getProperty("geckoDriverDownloadURL");
     private static String GECKO_DOWNLOAD_URL_TEMPLATE = GECKO_DRIVER_URL + "%s/geckodriver-%s-%s.zip";
     private static String CHROMEDRIVER_DOWNLOAD_URL_TEMPLATE = CHROME_DRIVER_URL + "%s/" + "%s/chromedriver-%s.zip";
     private static String WEBDRIVER_DOWNLOAD_PATH = System.getProperty("user.dir") + ConfigHelper.getInstance().getProperty("webdriver.download.path");
@@ -150,7 +149,7 @@ public class WebDriverHelper {
         // Extract the downloaded zip file
         FileHelper.unzipFile(zipFilePath, WEBDRIVER_DOWNLOAD_PATH);
         // Cleanup the zip file
-        //FileHelper.deleteFile(Paths.get(zipFilePath));
+        FileHelper.deleteFile(Paths.get(zipFilePath));
         System.out.println("GeckoDriver updated successfully!");
     }
 
